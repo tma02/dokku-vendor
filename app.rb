@@ -8,7 +8,7 @@ set :logger, Logger.new(STDOUT)
 DOWNLOAD_DIR = "/tmp/dokku-vendor/"
 VENDOR_URL = "https://lang-jvm.s3.amazonaws.com/jdk/"
 
-get '/:buildpack/*.tar.gz' do
+get '/jdk/:buildpack/*.tar.gz' do
   buildpack = params[:buildpack]
   file_path = params[:captures][1]
   send_file get_file(buildpack, file_path)
