@@ -6,24 +6,35 @@ require 'logger'
 set :logger, Logger.new(STDOUT)
 
 DOWNLOAD_DIR = "/tmp/dokku-vendor/"
-JVM_VENDOR_URL = "https://buildpacks.s3.amazonaws.com/buildpacks/heroku/jvm.tgz"
+VENDOR_URL = "https://s3-external-1.amazonaws.com/"
 
-get '/jvm.tgz' do
-  send_file get_file()
+get '/:buildpack/*.tgz' do
+  buildpack = params[:buildpack]
+  file_path = params[:captures][1]
+  send_file get_file(buildpack, file_path)
 end
 
-def get_file()
-  absolute_dir_path = DOWNLOAD_DIR + "/"
-  absolute_file_path = absolute_dir_path + "/jvm.tgz"
+def get_file(buildpack, file_path)
+  if file_path.include? "/"
+    file_data = file_path.split("/")
+    dir = file_data[0]
+    file_name = file_data[1] + ".tgz"
+  else
+    dir = ""
+    file_name = file_path + ".tgz"
+  end
+
+  absolute_dir_path = DOWNLOAD_DIR + buildpack + "/" + dir
+  absolute_file_path = absolute_dir_path + "/#{file_name}"
 
   if File.exists?(absolute_file_path)
     return absolute_file_path
   else
     logger.info "NO FILE - DOWNLOAD"
     FileUtils.mkdir_p  absolute_dir_path unless File.exists?(absolute_dir_path) # Create dir first
-    remote_url = VENDOR_URL
+    remote_url = VENDOR_URL + "#{buildpack}/#{file_path}.tgz"
     download_file(absolute_file_path, remote_url)
-    get_file()
+    get_file(buildpack, file_path)
   end
 end
 
