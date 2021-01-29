@@ -21,7 +21,7 @@ def get_file()
   else
     logger.info "NO FILE - DOWNLOAD"
     FileUtils.mkdir_p  absolute_dir_path unless File.exists?(absolute_dir_path) # Create dir first
-    remote_url = JVM_VENDOR_URL
+    remote_url = VENDOR_URL
     download_file(absolute_file_path, remote_url)
     get_file()
   end
